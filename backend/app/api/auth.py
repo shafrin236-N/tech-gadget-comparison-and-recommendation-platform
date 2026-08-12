@@ -2,83 +2,76 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.models.user import User
 
-from app.core.security import create_access_token
-
-from app.schemas.user import (
-    LoginRequest,
-    TokenResponse,
-    UserCreate,
-    UserResponse
-)
-
-from app.services.auth_service import (
-    authenticate_user,
-    register_user
-)
+router = APIRouter()
 
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["Authentication"]
-)
-
-
-@router.post(
-    "/register",
-    response_model=UserResponse
-)
-def register(
-    user_data: UserCreate,
+@router.post("/register")
+def register_user(
+    username: str,
+    email: str,
+    password: str,
     db: Session = Depends(get_db)
 ):
-
-    try:
-
-        user = register_user(
-            db,
-            user_data.name,
-            user_data.email,
-            user_data.password
+    existing_user = (
+        db.query(User)
+        .filter(
+            (User.username == username) |
+            (User.email == email)
         )
+        .first()
+    )
 
-        return user
-
-    except ValueError as error:
-
+    if existing_user:
         raise HTTPException(
             status_code=400,
-            detail=str(error)
+            detail="Username or email already exists"
         )
 
+    new_user = User(
+        username=username,
+        email=email,
+        password=password
+    )
 
-@router.post(
-    "/login",
-    response_model=TokenResponse
-)
-def login(
-    login_data: LoginRequest,
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {
+        "message": "User registered successfully",
+        "user_id": new_user.id,
+        "username": new_user.username,
+        "email": new_user.email
+    }
+@router.post("/login")
+def login_user(
+    username: str,
+    password: str,
     db: Session = Depends(get_db)
 ):
-
-    user = authenticate_user(
-        db,
-        login_data.email,
-        login_data.password
+    user = (
+        db.query(User)
+        .filter(User.username == username)
+        .first()
     )
 
     if not user:
-
         raise HTTPException(
             status_code=401,
-            detail="Invalid email or password"
+            detail="Invalid username or password"
         )
 
-    token = create_access_token(
-        user.id
-    )
+    if user.password != password:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid username or password"
+        )
 
     return {
-        "access_token": token,
-        "token_type": "bearer"
+        "message": "Login successful",
+        "user_id": user.id,
+        "username": user.username,
+        "email": user.email
     }
