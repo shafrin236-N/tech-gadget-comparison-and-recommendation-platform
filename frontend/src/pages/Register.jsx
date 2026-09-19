@@ -1,137 +1,107 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-import { registerUser } from "../api";
-
+import React, { useState } from "react";
 
 function Register() {
-
-  const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: ""
-  });
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-
-  function handleChange(event) {
-
-    setForm({
-      ...form,
-      [event.target.name]: event.target.value
-    });
-
-  }
-
-
-  async function handleSubmit(event) {
-
-    event.preventDefault();
+  const handleRegister = async (e) => {
+    e.preventDefault();
 
     setMessage("");
     setError("");
 
     try {
+      const url =
+        `http://127.0.0.1:8000/auth/register` +
+        `?username=${encodeURIComponent(username)}` +
+        `&email=${encodeURIComponent(email)}` +
+        `&password=${encodeURIComponent(password)}`;
 
-      await registerUser(form);
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Registration failed");
+      }
 
       setMessage(
-        "Registration successful. You can now login."
+        `Registration successful! Welcome, ${data.username}.`
       );
 
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
-
-    } catch (error) {
-
-      setError(error.message);
-
+      setUsername("");
+      setEmail("");
+      setPassword("");
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
     }
-
-  }
-
+  };
 
   return (
-    <div className="auth-container">
+    <div className="page">
+      <h1>Create Account</h1>
 
-      <form
-        className="auth-form"
-        onSubmit={handleSubmit}
-      >
+      <form onSubmit={handleRegister}>
 
-        <h2>Create Account</h2>
+        <div>
+          <label>Username</label>
 
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter username"
+            required
+          />
+        </div>
 
-        <label>
-          Name
-        </label>
+        <div>
+          <label>Email</label>
 
-        <input
-          type="text"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          placeholder="Enter your name"
-          required
-        />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter email"
+            required
+          />
+        </div>
 
+        <div>
+          <label>Password</label>
 
-        <label>
-          Email
-        </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter password"
+            required
+          />
+        </div>
 
-        <input
-          type="email"
-          name="email"
-          value={form.email}
-          onChange={handleChange}
-          placeholder="Enter your email"
-          required
-        />
-
-
-        <label>
-          Password
-        </label>
-
-        <input
-          type="password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-          placeholder="Create password"
-          required
-        />
-
-
-        <button
-          type="submit"
-          className="primary-button"
-        >
+        <button type="submit">
           Register
         </button>
 
-
-        {message && (
-          <p className="success">
-            {message}
-          </p>
-        )}
-
-
-        {error && (
-          <p className="error">
-            {error}
-          </p>
-        )}
-
       </form>
 
+      {message && (
+        <p>{message}</p>
+      )}
+
+      {error && (
+        <p>{error}</p>
+      )}
     </div>
   );
 }

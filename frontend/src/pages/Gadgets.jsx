@@ -1,124 +1,86 @@
-import { useEffect, useState } from "react";
-
-import GadgetCard from "../components/GadgetCard";
-import { getGadgets } from "../api";
-
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 function Gadgets() {
-
   const [gadgets, setGadgets] = useState([]);
-
-  const [search, setSearch] = useState("");
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
 
-
-  async function loadGadgets(searchText = "") {
-
-    try {
-
-      setLoading(true);
-      setError("");
-
-      const data = await getGadgets(searchText);
-
-      setGadgets(data);
-
-    } catch (error) {
-
-      setError(error.message);
-
-    } finally {
-
-      setLoading(false);
-
-    }
-
-  }
-
-
   useEffect(() => {
+    fetch("http://127.0.0.1:8000/gadgets/")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to load gadgets");
+        }
 
-    loadGadgets();
-
+        return response.json();
+      })
+      .then((data) => {
+        setGadgets(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Unable to load gadgets");
+        setLoading(false);
+      });
   }, []);
 
-
-  function handleSearch(event) {
-
-    event.preventDefault();
-
-    loadGadgets(search);
-
+  if (loading) {
+    return (
+      <div className="page">
+        <h1>Loading Gadgets...</h1>
+      </div>
+    );
   }
 
+  if (error) {
+    return (
+      <div className="page">
+        <h1>Gadgets</h1>
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="gadgets-page">
+    <div className="page">
+      <h1>Available Gadgets</h1>
 
-      <h1>
-        Explore Gadgets
-      </h1>
+      {gadgets.length === 0 ? (
+        <p>No gadgets found.</p>
+      ) : (
+        <div className="gadget-grid">
+          {gadgets.map((gadget) => (
+            <div className="gadget-card" key={gadget.id}>
+              <h2>{gadget.name}</h2>
 
+              <p>
+                <strong>Brand:</strong> {gadget.brand}
+              </p>
 
-      <form
-        className="search-form"
-        onSubmit={handleSearch}
-      >
+              <p>
+                <strong>Category:</strong> {gadget.category}
+              </p>
 
-        <input
-          type="text"
-          placeholder="Search by name, brand or category..."
-          value={search}
-          onChange={(event) =>
-            setSearch(event.target.value)
-          }
-        />
+              <p>
+                <strong>Price:</strong>{" "}
+                ₹{Number(gadget.price).toLocaleString("en-IN")}
+              </p>
 
-        <button
-          type="submit"
-          className="primary-button"
-        >
-          Search
-        </button>
+              <p>
+                <strong>Rating:</strong> ⭐ {gadget.rating}
+              </p>
 
-      </form>
+              <p>{gadget.description}</p>
 
-
-      {loading && (
-        <p className="loading">
-          Loading gadgets...
-        </p>
+              <Link to={"/gadgets/" + gadget.id}>
+                View Details
+              </Link>
+            </div>
+          ))}
+        </div>
       )}
-
-
-      {error && (
-        <p className="error">
-          {error}
-        </p>
-      )}
-
-
-      {!loading && !error && gadgets.length === 0 && (
-        <p>
-          No gadgets found.
-        </p>
-      )}
-
-
-      <div className="gadget-grid">
-
-        {gadgets.map((gadget) => (
-          <GadgetCard
-            key={gadget.id}
-            gadget={gadget}
-          />
-        ))}
-
-      </div>
-
     </div>
   );
 }

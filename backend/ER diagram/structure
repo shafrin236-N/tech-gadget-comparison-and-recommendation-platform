@@ -1,0 +1,103 @@
+┌──────────────────────────┐
+│          USER            │
+├──────────────────────────┤
+│ PK  user_id              │
+│     username             │
+│     email                │
+│     password             │
+└────────────┬─────────────┘
+             │
+             │ 1
+             │
+       ┌─────┴─────┐
+       │           │
+       │           │
+       │ M         │ M
+       ▼           ▼
+┌──────────────┐  ┌──────────────────┐
+│  COMPARISON  │  │  RECOMMENDATION  │
+├──────────────┤  ├──────────────────┤
+│ PK compare_id│  │ PK recommendation│
+│ FK user_id   │  │ FK user_id       │
+│ FK gadget_id │  │ FK gadget_id     │
+│ compare_date │  │ category         │
+└───────┬──────┘  │ max_price        │
+        │         │ recommendation   │
+        │         └────────┬─────────┘
+        │                  │
+        │ M                │ M
+        └────────┬─────────┘
+                 │
+                 ▼
+       ┌──────────────────────┐
+       │        GADGET        │
+       ├──────────────────────┤
+       │ PK  gadget_id        │
+       │     name             │
+       │     brand            │
+       │ FK  category_id      │
+       │     price            │
+       │     rating            │
+       │     description      │
+       └──────────┬───────────┘
+                  │
+                  │ M
+                  │
+                  ▼
+       ┌──────────────────────┐
+       │       CATEGORY       │
+       ├──────────────────────┤
+       │ PK  category_id      │
+       │     category_name    │
+       └──────────────────────┘┌──────────────────────────┐
+│          USER            │
+├──────────────────────────┤
+│ PK  user_id              │
+│     username             │
+│     email                │
+│     password             │
+└────────────┬─────────────┘
+             │
+             │ 1
+             │
+       ┌─────┴─────┐
+       │           │
+       │           │
+       │ M         │ M
+       ▼           ▼
+┌──────────────┐  ┌──────────────────┐
+│  COMPARISON  │  │  RECOMMENDATION  │
+├──────────────┤  ├──────────────────┤
+│ PK compare_id│  │ PK recommendation│
+│ FK user_id   │  │ FK user_id       │
+│ FK gadget_id │  │ FK gadget_id     │
+│ compare_date │  │ category         │
+└───────┬──────┘  │ max_price        │
+        │         │ recommendation   │
+        │         └────────┬─────────┘
+        │                  │
+        │ M                │ M
+        └────────┬─────────┘
+                 │
+                 ▼
+       ┌──────────────────────┐
+       │        GADGET        │
+       ├──────────────────────┤
+       │ PK  gadget_id        │
+       │     name             │
+       │     brand            │
+       │ FK  category_id      │
+       │     price            │
+       │     rating            │
+       │     description      │
+       └──────────┬───────────┘
+                  │
+                  │ M
+                  │
+                  ▼
+       ┌──────────────────────┐
+       │       CATEGORY       │
+       ├──────────────────────┤
+       │ PK  category_id      │
+       │     category_name    │
+       └──────────────────────┘

@@ -1,61 +1,64 @@
+import React from "react";
 import { Link } from "react-router-dom";
-
 
 function Home() {
   return (
     <div className="home">
 
       <section className="hero">
+        <div className="hero-content">
+          <h1>
+            Find the Right
+            <span> Tech Gadget </span>
+            for You
+          </h1>
 
-        <h1>
-          Tech Gadgets Comparison
-          <br />
-          and Recommendation Application
-        </h1>
+          <p>
+            Compare smartphones, laptops, tablets and other
+            gadgets and get personalized recommendations.
+          </p>
 
-        <p>
-          Search, compare and discover the right
-          technology products for your needs.
-        </p>
+          <div className="hero-buttons">
+            <Link
+              to="/gadgets"
+              className="primary-button"
+            >
+              Explore Gadgets
+            </Link>
 
-        <Link
-          to="/gadgets"
-          className="primary-button"
-        >
-          Explore Gadgets
-        </Link>
-
+            <Link
+              to="/recommendations"
+              className="secondary-button"
+            >
+              Get Recommendation
+            </Link>
+          </div>
+        </div>
       </section>
-
 
       <section className="features">
 
         <div className="feature-card">
-          <h2>🔎 Search</h2>
-
+          <div>🔍</div>
+          <h3>Search Gadgets</h3>
           <p>
-            Find gadgets based on name,
-            brand and category.
+            Quickly find gadgets based on your requirements.
           </p>
         </div>
 
-
         <div className="feature-card">
-          <h2>⚖️ Compare</h2>
-
+          <div>⚖️</div>
+          <h3>Compare Products</h3>
           <p>
-            Compare gadget specifications
-            and prices.
+            Compare specifications, prices and ratings.
           </p>
         </div>
 
-
         <div className="feature-card">
-          <h2>🤖 Recommend</h2>
-
+          <div>🤖</div>
+          <h3>Smart Recommendations</h3>
           <p>
-            Get suitable gadget recommendations
-            based on your requirements.
+            Get recommendations based on your preferences.
           </p>
         </div>
 

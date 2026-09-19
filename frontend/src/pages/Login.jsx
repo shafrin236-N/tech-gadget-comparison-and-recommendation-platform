@@ -1,112 +1,86 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-import { loginUser } from "../api";
-
+import React, { useState } from "react";
 
 function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-  const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    email: "",
-    password: ""
-  });
-
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-  function handleChange(event) {
-
-    setForm({
-      ...form,
-      [event.target.name]: event.target.value
-    });
-
-  }
-
-
-  async function handleSubmit(event) {
-
-    event.preventDefault();
-
+    setMessage("");
     setError("");
 
     try {
+      const url =
+        `http://127.0.0.1:8000/auth/login` +
+        `?username=${encodeURIComponent(username)}` +
+        `&password=${encodeURIComponent(password)}`;
 
-      const data = await loginUser(form);
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+      });
 
-      localStorage.setItem(
-        "access_token",
-        data.access_token
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Login failed");
+      }
+
+      setMessage(
+        `Login successful! Welcome, ${data.username}.`
       );
 
-      navigate("/gadgets");
-
-    } catch (error) {
-
-      setError(error.message);
-
+      setUsername("");
+      setPassword("");
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
     }
-
-  }
-
+  };
 
   return (
-    <div className="auth-container">
+    <div className="page">
+      <h1>Login</h1>
 
-      <form
-        className="auth-form"
-        onSubmit={handleSubmit}
-      >
+      <form onSubmit={handleLogin}>
+        <div>
+          <label>Username</label>
 
-        <h2>Login</h2>
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter username"
+            required
+          />
+        </div>
 
+        <div>
+          <label>Password</label>
 
-        <label>
-          Email
-        </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter password"
+            required
+          />
+        </div>
 
-        <input
-          type="email"
-          name="email"
-          value={form.email}
-          onChange={handleChange}
-          placeholder="Enter email"
-          required
-        />
-
-
-        <label>
-          Password
-        </label>
-
-        <input
-          type="password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-          placeholder="Enter password"
-          required
-        />
-
-
-        <button
-          type="submit"
-          className="primary-button"
-        >
+        <button type="submit">
           Login
         </button>
-
-
-        {error && (
-          <p className="error">
-            {error}
-          </p>
-        )}
-
       </form>
 
+      {message && <p>{message}</p>}
+
+      {error && <p>{error}</p>}
     </div>
   );
 }
